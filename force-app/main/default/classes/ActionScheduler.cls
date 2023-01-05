@@ -10,6 +10,7 @@ public with sharing class ActionScheduler implements Schedulable {
         this.action = action;
         actionSettings = ActionSettings__c.getValues(action.getType().getName());
         if (actionSettings == null) {
+            actionSettings = (ActionSettings__c) new ActionSettings__c();
             actionSettings.Name = action.getType().getName();
             actionSettings.Attempts__c = 3;
             actionSettings.Interval__c = 1;
@@ -18,15 +19,17 @@ public with sharing class ActionScheduler implements Schedulable {
     }
 
     private String buildCronExpression() {
-        return System.now().second() + ' ' + (System.now().minute() +
-                actionSettings.Interval__c.intValue()) + ' ' + System.now().hour() + ' '
-                + System.now().day() + ' ' + System.now().month() + ' ? ' + System.now().year();
+        return Datetime.now().addMinutes(actionSettings.Interval__c.intValue()).format('ss mm hh d M ? yyyy');
+    }
+
+    private static String getCurrentTime() {
+        return Datetime.now().format('MMM d, HH:mm:ss:SSS');
     }
 
     public void schedule() {
         ActionScheduler actionScheduler = new ActionScheduler(action);
         if (action.counter <= actionSettings.Attempts__c) {
-            System.schedule(action.getType().getName() + System.now().getTime(), buildCronExpression(), actionScheduler);
+            System.schedule('Action name: ' + action.getType().getName() + '. Time: ' + getCurrentTime(), buildCronExpression(), actionScheduler);
         }
     }
 
