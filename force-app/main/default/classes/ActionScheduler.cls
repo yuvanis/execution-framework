@@ -19,7 +19,7 @@ public with sharing class ActionScheduler implements Schedulable {
     }
 
     private String buildCronExpression() {
-        return Datetime.now().addMinutes(actionSettings.Interval__c.intValue()).format('ss mm hh d M ? yyyy');
+        return Datetime.now().addMinutes(actionSettings.Interval__c.intValue()).format('ss mm HH d M ? yyyy');
     }
 
     private static String getCurrentTime() {
